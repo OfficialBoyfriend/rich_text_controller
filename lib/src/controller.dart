@@ -11,8 +11,8 @@ import 'models/match_target_item.model.dart';
 /// for matched text.
 class RichTextController extends TextEditingController {
   final List<MatchTargetItem> targetMatches;
-  final Function(List<String> match) onMatch;
-  final Function(List<Map<String, List<int>>>)? onMatchIndex;
+  final void Function(List<String> match)? onMatch;
+  final void Function(List<Map<String, List<int>>>)? onMatchIndex;
 
   String _lastValue = "";
   Match? _matchUnderCursor; // Cache the match under the cursor
@@ -46,7 +46,7 @@ class RichTextController extends TextEditingController {
   RichTextController({
     super.text,
     required this.targetMatches,
-    required this.onMatch,
+    this.onMatch,
     this.onMatchIndex,
     this.regExpDotAll = false,
     this.regExpMultiLine = false,
@@ -329,7 +329,7 @@ class RichTextController extends TextEditingController {
     List<Map<String, List<int>>> matchIndex,
   ) {
     if (matches.isEmpty) return;
-    onMatch(List<String>.unmodifiable(matches));
+    onMatch?.call(List<String>.unmodifiable(matches));
     onMatchIndex?.call(matchIndex);
   }
 
