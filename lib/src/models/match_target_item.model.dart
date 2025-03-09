@@ -22,7 +22,10 @@ class MatchTargetItem {
   final bool allowInlineMatching;
 
   /// A callback function that is triggered when the matched text is tapped.
-  final Function(String match)? onTap;
+  final void Function(String match)? onTap;
+
+  /// A callback function that is triggered when the cursor is at the end of the matched text.
+  final void Function(String match)? onCursorAtEnd;
 
   /// Creates a new [MatchTargetItem] instance.
   ///
@@ -43,6 +46,7 @@ class MatchTargetItem {
     this.allowInlineMatching = false,
     this.deleteOnBack = false,
     this.onTap,
+    this.onCursorAtEnd,
   }) {
     validate();
   }
@@ -61,7 +65,8 @@ class MatchTargetItem {
     required TextStyle style,
     bool allowInlineMatching = false,
     bool deleteOnBack = false,
-    Function(String match)? onTap,
+    void Function(String match)? onTap,
+    void Function(String match)? onCursorAtEnd,
   }) {
     return MatchTargetItem(
       regex: RegExp(pattern),
@@ -69,6 +74,7 @@ class MatchTargetItem {
       allowInlineMatching: allowInlineMatching,
       deleteOnBack: deleteOnBack,
       onTap: onTap,
+      onCursorAtEnd: onCursorAtEnd,
     );
   }
 
@@ -86,7 +92,8 @@ class MatchTargetItem {
     required TextStyle style,
     bool allowInlineMatching = false,
     bool deleteOnBack = false,
-    Function(String match)? onTap,
+    void Function(String match)? onTap,
+    void Function(String match)? onCursorAtEnd,
   }) {
     return MatchTargetItem(
       text: text,
@@ -94,6 +101,7 @@ class MatchTargetItem {
       allowInlineMatching: allowInlineMatching,
       deleteOnBack: deleteOnBack,
       onTap: onTap,
+      onCursorAtEnd: onCursorAtEnd,
     );
   }
 
@@ -135,7 +143,8 @@ class MatchTargetItem {
     TextStyle? style,
     bool? allowInlineMatching,
     bool? deleteOnBack,
-    Function(String match)? onTap,
+    void Function(String match)? onTap,
+    void Function(String match)? onCursorAtEnd,
   }) {
     return MatchTargetItem(
       text: text ?? this.text,
@@ -144,13 +153,15 @@ class MatchTargetItem {
       allowInlineMatching: allowInlineMatching ?? this.allowInlineMatching,
       deleteOnBack: deleteOnBack ?? this.deleteOnBack,
       onTap: onTap ?? this.onTap,
+      onCursorAtEnd: onCursorAtEnd ?? this.onCursorAtEnd,
     );
   }
 
   @override
   String toString() {
     return 'MatchTargetItem(text: $text, regex: $regex, style: $style, '
-        'allowInlineMatching: $allowInlineMatching, deleteOnBack: $deleteOnBack, onTap: $onTap)';
+        'allowInlineMatching: $allowInlineMatching, deleteOnBack: $deleteOnBack'
+        ', onTap: $onTap, onCursorAtEnd: $onCursorAtEnd)';
   }
 
   @override
@@ -162,7 +173,8 @@ class MatchTargetItem {
         other.style == style &&
         other.allowInlineMatching == allowInlineMatching &&
         other.deleteOnBack == deleteOnBack &&
-        other.onTap == onTap;
+        other.onTap == onTap &&
+        other.onCursorAtEnd == onCursorAtEnd;
   }
 
   @override
@@ -174,6 +186,7 @@ class MatchTargetItem {
       allowInlineMatching,
       deleteOnBack,
       onTap,
+      onCursorAtEnd,
     );
   }
 }

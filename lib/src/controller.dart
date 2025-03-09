@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -126,9 +127,16 @@ class RichTextController extends TextEditingController {
     // Handle backspace deletion if enabled
     if (isBack(text, _lastValue) &&
         _matchUnderCursor != null &&
-        _matchedItemUnderCursor != null &&
-        _matchedItemUnderCursor!.deleteOnBack) {
-      _handleBackspaceDelete();
+        _matchedItemUnderCursor != null) {
+      if (selection.baseOffset == _matchUnderCursor!.end) {
+        _matchedItemUnderCursor!.onCursorAtEnd?.call(
+          _matchUnderCursor!.group(0)!,
+        );
+      }
+      if (_matchedItemUnderCursor!.deleteOnBack &&
+          selection.baseOffset == _matchUnderCursor!.end - 1) {
+        _handleBackspaceDelete();
+      }
     }
 
     // Trigger callbacks
@@ -293,20 +301,23 @@ class RichTextController extends TextEditingController {
 
   /// Handles backspace deletion of the match under the cursor.
   void _handleBackspaceDelete() {
-    if (_matchUnderCursor != null &&
-        selection.baseOffset == _matchUnderCursor!.end - 1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final newText = text.replaceRange(
-            _matchUnderCursor!.start, _matchUnderCursor!.end - 1, "");
-        value = TextEditingValue(
-          text: newText,
-          selection: TextSelection.collapsed(offset: _matchUnderCursor!.start),
-        );
-        _matchUnderCursor = null; // Reset the cached match after deletion
-        _matchedItemUnderCursor =
-            null; // Reset the cached matched item after deletion
-      });
-    }
+    // if (_matchUnderCursor == null) return;
+    // if (selection.baseOffset != _matchUnderCursor!.end - 1) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final newText = text.replaceRange(
+        _matchUnderCursor!.start,
+        _matchUnderCursor!.end - 1,
+        "",
+      );
+      value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: _matchUnderCursor!.start),
+      );
+      // Reset the cached match after deletion
+      _matchUnderCursor = null;
+      // Reset the cached matched item after deletion
+      _matchedItemUnderCursor = null;
+    });
   }
 
   /// Triggers the [onMatch] and [onMatchIndex] callbacks if matches are found.
@@ -314,13 +325,12 @@ class RichTextController extends TextEditingController {
   /// - [matches]: The set of matched text.
   /// - [matchIndex]: The list of match indices.
   void _triggerCallbacks(
-      Set<String> matches, List<Map<String, List<int>>> matchIndex) {
-    if (matches.isNotEmpty) {
-      onMatch(List<String>.unmodifiable(matches));
-      if (onMatchIndex != null) {
-        onMatchIndex!(matchIndex);
-      }
-    }
+    Set<String> matches,
+    List<Map<String, List<int>>> matchIndex,
+  ) {
+    if (matches.isEmpty) return;
+    onMatch(List<String>.unmodifiable(matches));
+    onMatchIndex?.call(matchIndex);
   }
 
   /// Generates a combined regex pattern from the target matches.
